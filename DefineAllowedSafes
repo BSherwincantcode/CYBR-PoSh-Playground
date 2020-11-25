@@ -2,7 +2,8 @@
 #region Initialize variables
 
 $AccountsCSVPath = "C:\Users\Administrator\Documents\Accounts.csv"
-#$PlatformSafe = @{}
+$ExportPath = "C:\Users\Administrator\Documents\Create-AllowedSafes_Output_" + (Get-Date -Format "MM-dd HHMM") + ".csv"
+$PlatformSafe = @{}
 $PlatformRegex = @{}
 $header = "SafeName","PolicyID"
 
@@ -13,48 +14,41 @@ $header = "SafeName","PolicyID"
 #region Functions
 Function Get-Type($input){ write-host ("The Object " + $input + " has type of " + $input.GetType()) }
 
-Function Build-AllowedSafes{
+Function Build-AllowedSafesStr{
     param (
         [Parameter(Mandatory = $true)]
         [String[]]
         $safeNames
     )
 
+    # Defining the initial 
     Begin{
-        $regexBegin = "^("
+        $regexInit = "^("
         $regexTerm = ")$"
     }
 
     Process{
-        
-        $Safenames | %{write-host ($_ + "@@@@@")}
-
-        $SafeNames
-        [String]$allowedSafes = $regexBegin
-        write-host ("first type allowedsafes " +$allowedSafes.GetType())
+        [String]$allowedSafes = $regexInit
         ForEach($Safe in $safeNames){
             $allowedSafes = ($allowedSafes += ($Safe + "|"))
         }
-        write-host $allowedsafes
+
+        # removing trailing pipe and finalizing RegEx for return
         $allowedSafes = $allowedSafes.Substring(0,$allowedSafes.Length-1) + $regexTerm
-        write-host ("allowedsafes after substring " + $allowedSafes )
-        write-host ("second type allowedsafes " + $allowedSafes.GetType())
-    }
-    End{
-        $allowedSafess
-    }
-    
+
+        $allowedSafes
+    }  
 }
 
 #endregion
 
 
-$i = 0<#
+#$i = 0
 # Build hashtable of Platforms and all associated safes
 Import-CSV -Path $AccountsCSVPath | %{
     $obj = $_
     $i += 1
-    if($i -gt 1000){break}
+    #if($i -gt 5000){break}
     if($PlatformSafe.ContainsKey($obj.SafeName)){
         If($PlatformSafe[$Obj.Safename] -Contains($obj.PolicyID) -eq $false){
             try{$PlatformSafe.($obj.safename) += $obj.PolicyID}
@@ -65,10 +59,14 @@ Import-CSV -Path $AccountsCSVPath | %{
         try{ $PlatformSafe.Add($Obj.SafeName,[System.Array]$obj.policyID) }
         catch{ write-host ("Error with adding new safe`n" + $_) }
     }
-}#>
+}
 
 $PlatformSafe.Keys | %{ 
-    Try{$PlatformRegex.Add($_,(Build-AllowedSafes -SafeNames $PlatformSafe.$_))}
+    Try{$PlatformRegex.Add($_,(Build-AllowedSafesStr -SafeNames $PlatformSafe.$_))}
     Catch{ write-host ("error with RegexArrayAdd`n" + $_) } 
     }
+
+# Export results to CSV File
+Try{$PlatformRegex.GetEnumerator() | select name,value | ConvertTo-Csv | Out-File -FilePath $ExportPath}
+catch{ write-host $_ }
 

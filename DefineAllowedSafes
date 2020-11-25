@@ -1,0 +1,64 @@
+#remove-variable platformsafe
+
+#region Initialize variables
+
+
+$PlatformSafe = @{}
+$PlatformRegex = @{}
+$header = "SafeName","PolicyID"
+
+
+#endregion
+
+
+#region Functions
+
+
+Function Create-AllowedSafes{
+    [CmdletBinding()]
+    [OutputType([String])]
+    param (
+        [Parameter(Mandatory = $true, ValuefromPipelineByPropertyName = $true)]
+        [Array]
+        $SafeNames
+    )
+
+    Begin{
+        $regexBegin = "^("
+        $regexTerm = ")$"
+    }
+
+    Process{
+        $AllowedSafes = $regexBegin
+        ForEach($Safe in $SafeNames){
+            $AllowedSafes += ($Safe + "|")
+        }
+        $AllowedSafes = $AllowedSafes.Substring(0,$AllowedSafes.Length-1) + $regexTerm
+        $AllowedSafes
+    }
+    
+}
+
+#endregion
+
+
+
+Import-CSV -Path "C:\Users\Administrator\Documents\Accounts.csv" | %{
+    $obj = $_
+    if($PlatformSafe.ContainsKey($obj.SafeName)){
+        If($platformsafe[$Obj.Safename] -Contains($obj.PolicyID) -eq $false){
+            $platformsafe.($obj.safename) += $obj.PolicyID
+            }
+    }
+    Else{
+        try{
+            $platformsafe.Add($Obj.SafeName,[System.Array]$obj.policyID)
+        }
+        catch{
+            out-host $_
+        }
+    }
+}
+
+$PlatformSafe | %{ $PlatformRegex.Add($_.SafeName,(Create-AllowedSafes -SafeNames $PlatformSafe.$SafeName)) }
+#Create-AllowedSafes -SafeNames $fancyarray

@@ -12,8 +12,6 @@ $header = "SafeName","PolicyID"
 
 
 #region Functions
-Function Get-Type($input){ write-host ("The Object " + $input + " has type of " + $input.GetType()) }
-
 Function Build-AllowedSafesStr{
     param (
         [Parameter(Mandatory = $true)]
@@ -51,20 +49,23 @@ Import-CSV -Path $AccountsCSVPath | %{
     #if($i -gt 5000){break}
     if($PlatformSafe.ContainsKey($obj.SafeName)){
         If($PlatformSafe[$Obj.Safename] -Contains($obj.PolicyID) -eq $false){
-            try{$PlatformSafe.($obj.safename) += $obj.PolicyID}
-            catch{ write-host ("Policy Add ERROR`n" + $_ )}
-            }
+            $PlatformSafe.($obj.safename) += $obj.PolicyID
+        }
     }
     Else{
-        try{ $PlatformSafe.Add($Obj.SafeName,[System.Array]$obj.policyID) }
-        catch{ write-host ("Error with adding new safe`n" + $_) }
+        $PlatformSafe.Add($Obj.SafeName,[System.Array]$obj.policyID)
     }
 }
 
 $PlatformSafe.Keys | %{ 
-    Try{$PlatformRegex.Add($_,(Build-AllowedSafesStr -SafeNames $PlatformSafe.$_))}
-    Catch{ write-host ("error with RegexArrayAdd`n" + $_) } 
+    Try{
+        $PlatformRegex.Add($_,(Build-AllowedSafesStr $PlatformSafe.$_)) 
     }
+    Catch{ 
+        write-host ("error with RegexArrayAdd`n" + $_) 
+    } 
+}
+
 
 # Export results to CSV File
 Try{$PlatformRegex.GetEnumerator() | select name,value | ConvertTo-Csv | Out-File -FilePath $ExportPath}

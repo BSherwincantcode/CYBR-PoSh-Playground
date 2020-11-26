@@ -47,13 +47,13 @@ Import-CSV -Path $AccountsCSVPath | %{
     $obj = $_
     $i += 1
     #if($i -gt 5000){break}
-    if($PlatformSafe.ContainsKey($obj.SafeName)){
-        If($PlatformSafe[$Obj.Safename] -Contains($obj.PolicyID) -eq $false){
-            $PlatformSafe.($obj.safename) += $obj.PolicyID
+    if($PlatformSafe.ContainsKey($obj.PolicyID)){
+        If($PlatformSafe[$Obj.PolicyID] -Contains($obj.SafeName) -eq $false){
+            $PlatformSafe.($obj.PolicyID) += $obj.SafeName
         }
     }
     Else{
-        $PlatformSafe.Add($Obj.SafeName,[System.Array]$obj.policyID)
+        $PlatformSafe.Add($Obj.PolicyID,[System.Array]$obj.SafeName)
     }
 }
 

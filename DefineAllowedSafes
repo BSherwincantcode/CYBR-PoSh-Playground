@@ -2,16 +2,17 @@
 #region Initialize variables
 
 $AccountsCSVPath = "C:\Users\Administrator\Documents\Accounts.csv"
-$ExportPath = "C:\Users\Administrator\Documents\Create-AllowedSafes_Output_" + (Get-Date -Format "MM-dd HHMM") + ".csv"
+$ExportDIR = "C:\Users\Administrator\Documents\"
+$ExportFile = $ExportDIR + "Create-AllowedSafes_Output_" + (Get-Date -Format "MM-dd HHMM") + ".csv"
 $PlatformSafe = @{}
 $PlatformRegex = @{}
 $header = "SafeName","PolicyID"
-
 
 #endregion
 
 
 #region Functions
+
 Function Build-AllowedSafesStr{
     param (
         [Parameter(Mandatory = $true)]
@@ -41,7 +42,6 @@ Function Build-AllowedSafesStr{
 #endregion
 
 
-#$i = 0
 # Build hashtable of Platforms and all associated safes
 Import-CSV -Path $AccountsCSVPath | %{
     $obj = $_
@@ -57,6 +57,7 @@ Import-CSV -Path $AccountsCSVPath | %{
     }
 }
 
+# Feed hashtable to function to build and format the precise "AllowedSafes" parameter
 $PlatformSafe.Keys | %{ 
     Try{
         $PlatformRegex.Add($_,(Build-AllowedSafesStr $PlatformSafe.$_)) 
@@ -68,6 +69,5 @@ $PlatformSafe.Keys | %{
 
 
 # Export results to CSV File
-Try{$PlatformRegex.GetEnumerator() | select name,value | ConvertTo-Csv | Out-File -FilePath $ExportPath}
+Try{$PlatformRegex.GetEnumerator() | select name,value | ConvertTo-Csv | Out-File -FilePath $ExportFile }
 catch{ write-host $_ }
-

@@ -5,12 +5,6 @@ $propsTable = @{}
 $allprops = @()
 $ExportDIR = "C:\Users\Administrator\Documents\"
 $ExportFile = $ExportDIR + "PoliciesXML_PropsAnalaysis_" + (Get-Date -Format "MM-dd HHMM") + ".csv"
-$Newfile = @(
-    [PSCustomObject]@{
-        PolicyID=[String]''
-        Property=[String]''
-    }
-)
 
 
 foreach($Policy in $policies.PasswordVaultPolicies.Devices.Device.Policies.Policy){ 

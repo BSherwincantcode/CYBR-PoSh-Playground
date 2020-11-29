@@ -1,5 +1,5 @@
 $system1
-[xml]$nfodata = get-content -path "C:\Users\brendan\Desktop\Evergy\warkcpp01\warkcpp01\warkcpp01.nfo"
+[xml]$nfodata = get-content -path "C:\Users\brendan\Desktop\Cust\server.nfo"
 
 #region Variables and PSCustomObject
 $srvinfo = @{

@@ -46,7 +46,7 @@ Function Calculate-UniqueGroups{
 
     param(
         [Parameter(Mandatory = $true)]
-        [String[]]
+        [PSCustomObject[]]
         $fullLine
     )
 
@@ -98,8 +98,10 @@ Function Calculate-UniqueGroups{
 #Import CSV to pipeline
 Import-CSV -Path $filePath | %{
     
-    $this = @($_)
-    if($this.PrivilegedDomainGroup -match '((.*);(.*))+'){  Calculate-UniqueGroups $this  }
+    $this = $_
+    #$this = @($_)
+    if(  $this.PrivilegedDomainGroup -match '((.*);(.*))+'  ){  Calculate-UniqueGroups $this  }
     Else{  $newfile += $this  }
     Out-Null
+}
 #Read group name

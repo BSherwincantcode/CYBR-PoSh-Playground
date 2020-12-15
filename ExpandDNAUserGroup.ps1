@@ -1,7 +1,7 @@
 #region Variables
 
-$filePath = "C:\Users\brendan\Desktop\DNA Group Expansion\ServersDNAExport.Small.csv"
-$outfile = "C:\Users\brendan\Desktop\DNA Group Expansion\ServersDNAExport.ExpandedGroups.csv"
+$filePath = "C:\Users\brendan\Desktop\DNA Group Expansion\ServersDNAExport.csv"
+$outfile = "C:\Users\brendan\Desktop\DNA Group Expansion\ServersDNAExport.full.ExpandedGroups.csv"
 $newfile = @()
 <#$line = @{
     MachineName = ''
@@ -57,7 +57,7 @@ Function Calculate-UniqueGroups{
 
     Process{
     
-        $GroupNames = $fullLine.PrivilegedDomainGroup.split(';')
+        $GroupNames = $fullLine.'Privileged Domain Group'.split(';')
     
         foreach(  $group in $groupnames  ){
             
@@ -66,25 +66,22 @@ Function Calculate-UniqueGroups{
             }
 
             $updatedline = [PSCustomObject][Ordered]@{
-                MachineName = $fullLine.MachineName
-                MachineType = $fullLine.MachineType
-                AccountName = $fullLine.AccountName
-                AccountDisplayName = $fullLine.AccountDisplayName
-                AccountType = $fullLine.AccountType
-                AccountCategory = $fullLine.AccountCategory
-                AccountGroup = $fullLine.AccountGroup
-                PrivilegedDomainGroup = $group
-                ServiceAccountType = $fullLine.ServiceAccountType
-                ServiceAccountDescription = $fullLine.ServiceAccountDescription
-                AccountState = $fullLine.AccountState
-                OSVersion = $fullLine.OSVersion
+                'Machine Name' = $fullLine.'Machine Name'
+                'Machine Type' = $fullLine.'Machine Type'
+                'Account Name' = $fullLine.'Account Name'
+                'Account Display Name' = $fullLine.'Account Display Name'
+                'Account Type' = $fullLine.'Account Type'
+                'Account Category' = $fullLine.'Account Category'
+                'Account Group' = $fullLine.'Account Group'
+                'Privileged Domain Group' = $group
+                'Service Account Type' = $fullLine.'Service Account Type'
+                'Service Account Description' = $fullLine.'Service Account Description'
+                'Account State' = $fullLine.'Account State'
+                'OS Version' = $fullLine.'OS Version'
                 Details = $fullLine.Details
             }
-            
-            try{ $newfile += $updatedline }
-            catch { $_
-                write-host 'function' }
-            Out-Null
+            try{ $script:newfile += $updatedline } 
+            catch { $_  }
         }
 
 
@@ -99,9 +96,9 @@ Function Calculate-UniqueGroups{
 Import-CSV -Path $filePath | %{
     
     $this = $_
-    #$this = @($_)
-    if(  $this.PrivilegedDomainGroup -match '((.*);(.*))+'  ){  Calculate-UniqueGroups $this  }
+    if(  $this.'Privileged Domain Group' -match '((.*);(.*))+'  ){  Calculate-UniqueGroups $this  }
     Else{  $newfile += $this  }
-    Out-Null
 }
+
+$newfile | Export-Csv -Path $outfile -NoTypeInformation
 #Read group name
